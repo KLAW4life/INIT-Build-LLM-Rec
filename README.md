@@ -1,11 +1,12 @@
-# INIT-Build-LLM-Rec
+
+# INIT-BuildMatch
 
 How to run this program:
 
 In the command line, run the following commands:
 
 ```bash
-python -m venv venv (you may need to use python3 instead if you are using python3)
+python3 -m venv venv 
 ```
 If you have a Mac/Linus System you run this command to create your virtual environment
 ```bash
@@ -18,5 +19,5 @@ If you have a Windows System you run this command to create your virtual environ
 ```
 Install all the requirements for the project to run
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
