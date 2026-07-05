@@ -1,8 +1,15 @@
 import { useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+)
+
 
 function App() {
   const [count, setCount] = useState(0)
