@@ -5,3 +5,4 @@
 - add preview button
 - allow editing for existing field
 - no confirmation page post submitting application, causes error
+- add delete options for forums
