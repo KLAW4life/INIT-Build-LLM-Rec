@@ -1,0 +1,7 @@
+- for added fields, cannot reorder rankings
+- drop field only allows to add sections via commas, must improve ui with add button
+- checkbox does not allow to create checkbox options
+- file upload does not allow for file upload.
+- add preview button
+- allow editing for existing field
+- no confirmation page post submitting application, causes error
