@@ -9,6 +9,11 @@ import Dashboard from '@/pages/Dashboard';
 import AuthenticatedLayout from '@/pages/AuthenticatedLayout';
 import HubShell from '@/pages/hubs/HubShell';
 import HubOverview from '@/pages/hubs/HubOverview';
+import FormsList from '@/pages/hubs/FormsList';
+import FormDetail from '@/pages/hubs/FormDetail';
+import TeamsList from '@/pages/hubs/TeamsList';
+import TeamDetail from '@/pages/hubs/TeamDetail';
+import RolesPage from '@/pages/hubs/RolesPage';
 import { ProtectedRoute } from '@/lib/protected-route';
 import './App.css'
 
@@ -32,9 +37,11 @@ function App() {
             {/* Hub routes */}
             <Route path="/hubs/:hubId" element={<HubShell />}>
               <Route index element={<HubOverview />} />
-              <Route path="forms" element={<div>Forms - Coming Soon</div>} />
-              <Route path="teams" element={<div>Teams - Coming Soon</div>} />
-              <Route path="roles" element={<div>Roles - Coming Soon</div>} />
+              <Route path="forms" element={<FormsList />} />
+              <Route path="forms/:formId" element={<FormDetail />} />
+              <Route path="teams" element={<TeamsList />} />
+              <Route path="teams/:teamId" element={<TeamDetail />} />
+              <Route path="roles" element={<RolesPage />} />
             </Route>
           </Route>  
         </Routes>
