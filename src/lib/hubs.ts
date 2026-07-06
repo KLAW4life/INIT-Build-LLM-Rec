@@ -56,6 +56,7 @@ export async function fetchHub(hubId: string): Promise<Hub> {
 
 // Fetch all hubs for a user
 export async function fetchMyHubs(userId: string): Promise<HubWithRole[]> {
+  // First, get all hub memberships for the user
   const { data: memberships, error: membershipError } = await supabase
     .from('hub_members')
     .select('hub_id, role')
@@ -70,6 +71,7 @@ export async function fetchMyHubs(userId: string): Promise<HubWithRole[]> {
     return [];
   }
 
+  // Then, get the hub details for each membership
   const hubIds = memberships.map(m => m.hub_id);
   const { data: hubs, error: hubsError } = await supabase
     .from('hubs')
@@ -81,6 +83,7 @@ export async function fetchMyHubs(userId: string): Promise<HubWithRole[]> {
     throw new Error('Failed to fetch hub details');
   }
 
+  // Combine the data
   const result: HubWithRole[] = hubs.map(hub => {
     const membership = memberships.find(m => m.hub_id === hub.id);
     return {
@@ -92,22 +95,57 @@ export async function fetchMyHubs(userId: string): Promise<HubWithRole[]> {
   return result;
 }
 
-// Fetch hub members
+// Fetch hub members with profiles 
 export async function fetchHubMembers(hubId: string): Promise<HubMember[]> {
-  const { data, error } = await supabase
-    .from('hub_members')
-    .select(`
-      *,
-      profile:profiles(display_name, email)
-    `)
-    .eq('hub_id', hubId);
+  try {
+    // Step 1: Get all hub members
+    const { data: members, error: membersError } = await supabase
+      .from('hub_members')
+      .select('*')
+      .eq('hub_id', hubId);
 
-  if (error) {
-    console.error('Error fetching hub members:', error);
-    throw new Error('Failed to fetch hub members');
+    if (membersError) {
+      console.error('Error fetching hub members:', membersError);
+      throw new Error('Failed to fetch hub members');
+    }
+
+    if (!members || members.length === 0) {
+      return [];
+    }
+
+    // Step 2: Get profiles for all members
+    const userIds = members.map(m => m.user_id);
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, display_name, email')
+      .in('id', userIds);
+
+    if (profilesError) {
+      console.warn('Error fetching profiles:', profilesError);
+      // Return members without profiles
+      return members.map(member => ({
+        ...member,
+        profile: undefined,
+      }));
+    }
+
+    // Step 3: Combine the data
+    const result: HubMember[] = members.map(member => {
+      const profile = profiles?.find(p => p.id === member.user_id);
+      return {
+        ...member,
+        profile: profile ? {
+          display_name: profile.display_name,
+          email: profile.email,
+        } : undefined,
+      };
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error in fetchHubMembers:', error);
+    throw error;
   }
-
-  return data || [];
 }
 
 // Create a new hub
@@ -122,6 +160,7 @@ export async function createHub({
 }): Promise<Hub> {
   const joinCode = generateJoinCode();
 
+  // Start a transaction - create hub
   const { data: hub, error: hubError } = await supabase
     .from('hubs')
     .insert({
@@ -138,6 +177,7 @@ export async function createHub({
     throw new Error('Failed to create hub');
   }
 
+  // Add the owner as an admin member
   const { error: memberError } = await supabase
     .from('hub_members')
     .insert({
@@ -148,6 +188,7 @@ export async function createHub({
 
   if (memberError) {
     console.error('Error adding owner to hub:', memberError);
+    // You might want to delete the hub here if member creation fails
     throw new Error('Failed to add you as a member');
   }
 
@@ -156,6 +197,7 @@ export async function createHub({
 
 // Join a hub by code
 export async function joinHubByCode(code: string, userId: string): Promise<Hub> {
+  // Find the hub by join code
   const { data: hub, error: hubError } = await supabase
     .from('hubs')
     .select('*')
@@ -167,6 +209,7 @@ export async function joinHubByCode(code: string, userId: string): Promise<Hub> 
     throw new Error('Invalid hub code');
   }
 
+  // Check if user is already a member
   const { data: existingMember, error: checkError } = await supabase
     .from('hub_members')
     .select('id')
@@ -174,7 +217,7 @@ export async function joinHubByCode(code: string, userId: string): Promise<Hub> 
     .eq('user_id', userId)
     .single();
 
-  if (checkError && checkError.code !== 'PGRST116') {
+  if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
     console.error('Error checking membership:', checkError);
     throw new Error('Failed to join hub');
   }
@@ -183,6 +226,7 @@ export async function joinHubByCode(code: string, userId: string): Promise<Hub> 
     throw new Error('You are already a member of this hub');
   }
 
+  // Add user as a member
   const { error: memberError } = await supabase
     .from('hub_members')
     .insert({
@@ -197,4 +241,43 @@ export async function joinHubByCode(code: string, userId: string): Promise<Hub> 
   }
 
   return hub;
+}
+
+// Check if user is a member of a hub
+export async function isHubMember(hubId: string, userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('hub_members')
+    .select('id')
+    .eq('hub_id', hubId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error checking membership:', error);
+    throw new Error('Failed to check membership');
+  }
+
+  return !!data;
+}
+
+// Check if user has a specific role in a hub
+export async function hasHubRole(
+  hubId: string, 
+  userId: string, 
+  role: 'admin' | 'member'
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('hub_members')
+    .select('id')
+    .eq('hub_id', hubId)
+    .eq('user_id', userId)
+    .eq('role', role)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error checking role:', error);
+    throw new Error('Failed to check role');
+  }
+
+  return !!data;
 }
