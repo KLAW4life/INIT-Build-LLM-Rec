@@ -1,8 +1,16 @@
+### Things to fix ###
 - for added fields, cannot reorder rankings
 - drop field only allows to add sections via commas, must improve ui with add button
 - checkbox does not allow to create checkbox options
 - file upload does not allow for file upload.
+- no confirmation page post submitting application, causes error
+- permisions can not be updated, not even by admins
+
+### Things to add ###
 - add preview button
 - allow editing for existing field
-- no confirmation page post submitting application, causes error
 - add delete options for forums
+- admin should be able to see who applies
+- admin should have an applicant edit and delete function
+- ability to add multiple co-leads
+- pick a team build option must be mandatory in form builder
