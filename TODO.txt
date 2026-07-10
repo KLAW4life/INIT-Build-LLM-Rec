@@ -1,10 +1,10 @@
 ### Things to fix ###
-- for added fields, cannot reorder rankings
-- drop field only allows to add sections via commas, must improve ui with add button
-- checkbox does not allow to create checkbox options
-- file upload does not allow for file upload.
-- no confirmation page post submitting application, causes error
-- permisions can not be updated, not even by admins
+- for added fields for the form, cannot reorder field rankings
+- drop field only allows to add sections via commas, must improve ui with add button like google forms
+- checkbox does not allow to create checkbox options, should be able to type options to add
+- file upload does not allow for file upload type specification.
+- get bucket not found error when form submitted, but refresh shows the confirmation. (refresh needed to see anything updated - need to fix)
+- permisions can be added but not shown for assigned user in their account. They cannot get the edit permissions like the admin does for specific pages
 
 ### Things to add ###
 - add preview button
@@ -13,4 +13,7 @@
 - admin should be able to see who applies
 - admin should have an applicant edit and delete function
 - ability to add multiple co-leads
-- pick a team build option must be mandatory in form builder
+- pick a team build option must be mandatory in form builder ( what if there are multiple teams for users to choose from)
+
+Context(for when a user picks a team/teams in a form, they should be able to choose team choice based on a ranking eg. 1st,2nd,3rd,etc. The choice limit for teams should be determined by the admin in the form builder)
+For the team lead that is assigned by the admin, they should be able to see which ranking the user applied them for. 
