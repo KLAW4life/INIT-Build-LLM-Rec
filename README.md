@@ -21,3 +21,8 @@ Install all the requirements for the project to run
 ```bash
 pip3 install -r requirements.txt
 ```
+
+Run application
+```
+streamlit run app.py
+```
